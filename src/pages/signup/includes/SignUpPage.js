@@ -42,7 +42,8 @@ class SignUpPage extends React.Component {
     super(props);
     this.state = {
       open: false,
-      redirect: false
+      redirect: false,
+      hasError: false
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -50,6 +51,11 @@ class SignUpPage extends React.Component {
     this.handleClose = this.handleClose.bind(this);
     this.handleGoogleSignup = this.handleGoogleSignup.bind(this);
     this.handleFacebookSignup = this.handleFacebookSignup.bind(this);
+  }
+
+  componentDidCatch(error, info) {
+    this.setState({ hasError: true });
+    console.log("Has error called")
   }
 
   handleChange(event) {
@@ -63,9 +69,11 @@ class SignUpPage extends React.Component {
       method: 'post',
       url: `${URL}/auth/register`,
       data: _.pick(this.state, 'name', 'email', 'username', 'password'),
-      config: { headers: { 'Content-Type': 'application/json' } }
+      headers: { 'Content-Type': 'application/json' }
     })
-      .then(res => res.data.data)
+      .then(res => {
+        return res.data.data;
+      })
       .then(val => {
         localStorage.setItem('token', val.token.accessToken);
         localStorage.setItem('userId', val.user.id);
@@ -74,7 +82,16 @@ class SignUpPage extends React.Component {
           redirectPath: `/select-card/${val.user.id}`
         });
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        console.log(err.response)
+        if(err.response.status === 409) {
+          window.alert('Email and username already exists !!')  
+        } if(err.response.status === 500) {
+          window.alert('Server Not Responding !!')
+        } else {
+          window.alert('Connection error!!')
+        }
+      });
   }
 
   // Dialog Box Handler Functions
@@ -150,7 +167,9 @@ class SignUpPage extends React.Component {
         </DialogActions>
       </Dialog>
     );
-
+    if(this.state.hasError) {
+      return <h1>Error occurred</h1>
+    }
     if (!this.state.redirect) {
       return (
         <div className="container-fluid text-center h-100" id="signup">

@@ -23,7 +23,8 @@ export class Profile extends React.Component {
       name: '',
       email: '',
       username: '',
-      contact: ''
+      contact: '',
+      picture: Avtar
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -110,7 +111,7 @@ export class Profile extends React.Component {
             </Typography>
             <form className="w-75 mx-auto" onSubmit={this.handleSubmit}>
               <AvtarInput
-                picture={this.state.picture === '' ? Avtar : this.state.picture}
+                picture={this.state.picture !== "" ? this.state.picture: Avtar}
                 handelFileSelect={this.handelFileSelect}
               />
               <InputField
